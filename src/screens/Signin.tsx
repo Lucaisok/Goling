@@ -3,6 +3,7 @@ import { View, StyleSheet, Keyboard } from "react-native";
 import { TextInput, Button, Text } from "@react-native-material/core";
 import Spinner from '../components/Spinner';
 import address from '../config/addressConfig';
+import fetchWithInterval from '../utils/fetchWithInterval';
 
 export default function Signin({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '' });

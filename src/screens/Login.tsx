@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Keyboard } from "react-native";
 import { Text, TextInput, Button } from "@react-native-material/core";
+import address from '../config/addressConfig';
+import fetchWithInterval from '../utils/fetchWithInterval';
 
 export default function Login({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '' });
@@ -22,11 +24,18 @@ export default function Login({ navigation }: { navigation: any; }) {
             const username = userInput.username;
             const password = userInput.password;
 
+            try {
+
+            } catch (err) {
+                console.log("error in login()", err);
+            }
+
         } else {
             setError(userInput.username !== "" ?
                 "Please insert your password" : "Please insert a username");
         }
     };
+
     return (
         <View style={styles.container}>
             <View style={styles.titleContainer}>
