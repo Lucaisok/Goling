@@ -1,24 +1,68 @@
-import React from 'react';
-import { View, StyleSheet } from "react-native";
+import React, { useState } from 'react';
+import { View, StyleSheet, Keyboard } from "react-native";
 import { TextInput, Button, Text } from "@react-native-material/core";
+import Spinner from '../components/Spinner';
+import address from '../config/addressConfig';
 
 export default function Signin({ navigation }: { navigation: any; }) {
+    const [userInput, setUserInput] = useState({ username: '', password: '' });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+
+    const updateUsername = (username: string) => {
+        setError("");
+        setUserInput({ ...userInput, username });
+    };
+
+    const updatePassword = (password: string) => {
+        setError("");
+        setUserInput({ ...userInput, password });
+    };
+
+    const signup = () => {
+        Keyboard.dismiss();
+        if (userInput.username !== "" && userInput.password !== "") {
+            setLoading(true);
+            const username = userInput.username;
+            const password = userInput.password;
+
+            try {
+
+            } catch (err) {
+                console.log("error in signup()", err);
+            }
+
+        } else {
+            setError(userInput.username !== "" ?
+                "Please insert your password" : "Please insert a username");
+        }
+    };
+
     return (
         <View style={styles.container}>
+            {loading &&
+                <Spinner />}
             <View style={styles.titleContainer}>
                 <Text variant="h3">Goling</Text>
             </View>
             <View style={styles.formContainer}>
+                {error &&
+                    <Text variant="subtitle1" style={styles.error}>{error}</Text>}
                 <TextInput
                     label="Username"
                     variant="outlined"
+                    value={userInput.username}
+                    onChangeText={updateUsername}
                 />
                 <TextInput
                     label="Password"
                     variant="outlined"
+                    value={userInput.password}
+                    onChangeText={updatePassword}
                 />
                 <Button
                     title="Signup"
+                    onPress={signup}
                 />
                 <View style={styles.textContainer}>
                     <Text variant="subtitle1">Already a member ?</Text>
@@ -45,7 +89,6 @@ const styles = StyleSheet.create({
     titleContainer: {
         width: "70%",
         flex: 1,
-        // backgroundColor: "pink",
         display: "flex",
         justifyContent: "center",
         alignItems: "center"
@@ -59,7 +102,10 @@ const styles = StyleSheet.create({
         width: "70%",
         display: "flex",
         flexDirection: "row",
-        // justifyContent: "center",
         alignItems: "baseline",
+    },
+    error: {
+        color: "red",
+        marginBottom: 10
     }
 });
