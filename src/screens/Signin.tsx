@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Keyboard } from "react-native";
+import { View, StyleSheet, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
 import { TextInput, Button, Text } from "@react-native-material/core";
 import Spinner from '../components/Spinner';
 import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
 
 export default function Signin({ navigation }: { navigation: any; }) {
-    const [userInput, setUserInput] = useState({ username: '', password: '' });
+    const [userInput, setUserInput] = useState({ username: '', password: '', first_name: '', last_name: '' });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -15,32 +15,75 @@ export default function Signin({ navigation }: { navigation: any; }) {
         setUserInput({ ...userInput, username });
     };
 
+    const updateFirstName = (first_name: string) => {
+        setError("");
+        setUserInput({ ...userInput, first_name });
+    };
+
+    const updateLastName = (last_name: string) => {
+        setError("");
+        setUserInput({ ...userInput, last_name });
+    };
+
     const updatePassword = (password: string) => {
         setError("");
         setUserInput({ ...userInput, password });
     };
 
-    const signup = () => {
+    const signup = async () => {
         Keyboard.dismiss();
-        if (userInput.username !== "" && userInput.password !== "") {
+        if (userInput.username !== "" && userInput.password !== "" && userInput.first_name !== "" && userInput.last_name !== "") {
             setLoading(true);
-            const username = userInput.username;
-            const password = userInput.password;
+            const username = userInput.username.trim();
+            const password = userInput.password.trim();
+            const first_name = userInput.first_name.trim();
+            const last_name = userInput.last_name.trim();
 
             try {
+                const serverCall = () => {
+                    return fetch(address + "/signin", {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username, password, first_name, last_name
+                        })
+                    });
+                };
+
+                const data = await fetchWithInterval(serverCall) as SignupResponse;
+
+                if (data.existing_username) {
+                    setError("Username already exist, please try again");
+
+                } else if (data.token && data.refresh_token) {
+                    setUserInput({ username: '', password: '', first_name: '', last_name: '' });
+                    //update store and redirect to home
+
+                } else {
+                    setError("Server connection error, please try again");
+                }
 
             } catch (err) {
                 console.log("error in signup()", err);
+                setError("Server connection error, please try again");
+
+            } finally {
+                setLoading(false);
             }
 
         } else {
-            setError(userInput.username !== "" ?
-                "Please insert your password" : "Please insert a username");
+            setError("Every field is required");
         }
     };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView
+            behavior={Platform.OS === "ios" ? "padding" : "height"}
+            style={styles.container}
+        >
             {loading &&
                 <Spinner />}
             <View style={styles.titleContainer}>
@@ -54,6 +97,18 @@ export default function Signin({ navigation }: { navigation: any; }) {
                     variant="outlined"
                     value={userInput.username}
                     onChangeText={updateUsername}
+                />
+                <TextInput
+                    label="First Name"
+                    variant="outlined"
+                    value={userInput.first_name}
+                    onChangeText={updateFirstName}
+                />
+                <TextInput
+                    label="Last Name"
+                    variant="outlined"
+                    value={userInput.last_name}
+                    onChangeText={updateLastName}
                 />
                 <TextInput
                     label="Password"
@@ -75,7 +130,7 @@ export default function Signin({ navigation }: { navigation: any; }) {
                         } />
                 </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
@@ -92,7 +147,7 @@ const styles = StyleSheet.create({
         flex: 1,
         display: "flex",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
     },
     formContainer: {
         width: "70%",

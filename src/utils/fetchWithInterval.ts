@@ -3,36 +3,50 @@ export default async function fetchWithInterval(call: any) {
 
     return await new Promise((resolve, reject) => {
 
-        const interval = setInterval(() => {
+        call()
+            .then(async (response: any) => {
 
-            if (count < 5) {
+                try {
+                    const data = await response.json();
+                    resolve(data);
 
-                call()
-                    .then(async (response: any) => {
-                        try {
-                            const data = await response.json();
-                            return data;
+                } catch (err) {
+                    //no need to be parsed, just return server response
+                    resolve(response);
 
-                        } catch (err) {
-                            //no need to be parsed, just return server response
-                            return response;
-                        }
-                    })
-                    .then((data: any) => {
+                }
+            })
+            .catch((err: any) => {
+
+                const interval = setInterval(() => {
+                    if (count < 5) {
+                        call()
+                            .then(async (response: any) => {
+                                try {
+                                    const data = await response.json();
+                                    resolve(data);
+
+                                } catch (err) {
+                                    //no need to be parsed, just return server response
+                                    resolve(response);
+
+                                } finally {
+                                    clearInterval(interval);
+                                }
+                            })
+                            .catch((err: any) => {
+                                count++;
+                                console.log(`Catch fetchWithInterval, take number ${count}`, err);
+                            });
+
+                    } else {
                         clearInterval(interval);
-                        resolve(data);
-                    })
-                    .catch((err: any) => {
-                        count++;
-                        console.log(`Catch fetchWithInterval, take number ${count}`, err);
-                    });
+                        reject("fetch failed 5 times");
+                    }
 
-            } else {
-                reject("fetch failed 5 times");
-                clearInterval(interval);
-            }
+                }, 1000);
 
-        }, 900);
+            });
 
     });
 } 

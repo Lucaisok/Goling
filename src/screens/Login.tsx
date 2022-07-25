@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Keyboard } from "react-native";
+import { View, StyleSheet, Keyboard, KeyboardAvoidingView } from "react-native";
 import { Text, TextInput, Button } from "@react-native-material/core";
 import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
@@ -37,7 +37,7 @@ export default function Login({ navigation }: { navigation: any; }) {
     };
 
     return (
-        <View style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}>
             <View style={styles.titleContainer}>
                 <Text variant="h3">Goling</Text>
             </View>
@@ -70,7 +70,7 @@ export default function Login({ navigation }: { navigation: any; }) {
                         } />
                 </View>
             </View>
-        </View>
+        </KeyboardAvoidingView>
     );
 }
 
