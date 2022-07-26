@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthenticationNavigator from './src/navigation/AuthenticationNavigator';
+import UserVerification from './src/components/UserVerification';
 import AppNavigator from './src/navigation/AppNavigator';
 import { useSelector } from 'react-redux';
 import { RootState } from './src/store/store';
@@ -9,7 +9,7 @@ const App = () => {
 
   return (
     <>
-      {isLoggedIn ? <AppNavigator /> : <AuthenticationNavigator />}
+      {isLoggedIn ? <AppNavigator /> : <UserVerification />}
     </>
   );
 };

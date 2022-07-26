@@ -6,6 +6,7 @@ import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
 import { useDispatch } from 'react-redux';
 import { userLoggedIn } from '../features/user/userSlice';
+import * as Keychain from 'react-native-keychain';
 
 export default function Signin({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '', first_name: '', last_name: '' });
@@ -62,6 +63,7 @@ export default function Signin({ navigation }: { navigation: any; }) {
                     setError("Username already exist, please try again");
 
                 } else if (data.token && data.refresh_token && data.id) {
+                    await Keychain.setGenericPassword(username, password);
                     setUserInput({ username: '', password: '', first_name: '', last_name: '' });
                     dispatch(userLoggedIn({ id: data.id, username, first_name, last_name, token: data.token, refresh_token: data.refresh_token }));
 

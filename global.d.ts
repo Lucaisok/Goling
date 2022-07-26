@@ -24,3 +24,10 @@ interface LoginResponse {
     wrong_username: any;
     wrong_password: any;
 }
+
+interface Credentials {
+    username: string;
+    password: string;
+}
+
+type UserVerification = "succeeded" | "failed" | null;

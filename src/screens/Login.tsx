@@ -6,6 +6,7 @@ import fetchWithInterval from '../utils/fetchWithInterval';
 import { useDispatch } from 'react-redux';
 import { userLoggedIn } from '../features/user/userSlice';
 import Spinner from '../components/Spinner';
+import * as Keychain from 'react-native-keychain';
 
 export default function Login({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '' });
@@ -48,6 +49,7 @@ export default function Login({ navigation }: { navigation: any; }) {
                 const data = await fetchWithInterval(serverCall) as LoginResponse;
 
                 if (data.id) {
+                    await Keychain.setGenericPassword(username, password);
                     setUserInput({ username: '', password: '' });
                     dispatch(userLoggedIn({ id: data.id, username, first_name: data.first_name, last_name: data.last_name, token: data.token, refresh_token: data.refresh_token }));
 
