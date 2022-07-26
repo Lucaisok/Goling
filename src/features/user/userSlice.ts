@@ -6,7 +6,8 @@ const initialState = {
     fist_name: "",
     last_name: "",
     token: "",
-    refresh_token: ""
+    refresh_token: "",
+    loggedIn: false
 };
 
 const userSlice = createSlice({
@@ -21,10 +22,20 @@ const userSlice = createSlice({
             state.last_name = last_name;
             state.token = token;
             state.refresh_token = refresh_token;
+            state.loggedIn = true;
+        },
+        userLoggedOut(state) {
+            state.id = "";
+            state.username = "";
+            state.fist_name = "";
+            state.last_name = "";
+            state.token = "";
+            state.refresh_token = "";
+            state.loggedIn = false;
         }
     }
 });
 
-export const { userLoggedIn } = userSlice.actions;
+export const { userLoggedIn, userLoggedOut } = userSlice.actions;
 
 export default userSlice.reducer;

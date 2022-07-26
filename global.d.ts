@@ -5,6 +5,7 @@ interface User {
     last_name: string;
     token: string;
     refreshToken: string;
+    loggedIn: boolean;
 }
 
 interface SignupResponse {

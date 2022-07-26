@@ -63,7 +63,6 @@ export default function Signin({ navigation }: { navigation: any; }) {
 
                 } else if (data.token && data.refresh_token && data.id) {
                     setUserInput({ username: '', password: '', first_name: '', last_name: '' });
-                    //update store and redirect to home
                     dispatch(userLoggedIn({ id: data.id, username, first_name, last_name, token: data.token, refresh_token: data.refresh_token }));
 
                 } else {
