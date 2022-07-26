@@ -4,11 +4,14 @@ import { TextInput, Button, Text } from "@react-native-material/core";
 import Spinner from '../components/Spinner';
 import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
+import { useDispatch } from 'react-redux';
+import { userLoggedIn } from '../features/user/userSlice';
 
 export default function Signin({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '', first_name: '', last_name: '' });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
 
     const updateUsername = (username: string) => {
         setError("");
@@ -58,9 +61,10 @@ export default function Signin({ navigation }: { navigation: any; }) {
                 if (data.existing_username) {
                     setError("Username already exist, please try again");
 
-                } else if (data.token && data.refresh_token) {
+                } else if (data.token && data.refresh_token && data.id) {
                     setUserInput({ username: '', password: '', first_name: '', last_name: '' });
                     //update store and redirect to home
+                    dispatch(userLoggedIn({ id: data.id, username, first_name, last_name, token: data.token, refresh_token: data.refresh_token }));
 
                 } else {
                     setError("Server connection error, please try again");

@@ -9,6 +9,7 @@ interface User {
 
 interface SignupResponse {
     existing_username?: object;
+    id?: string;
     token?: string;
-    refresh_token: string;
+    refresh_token?: string;
 }
