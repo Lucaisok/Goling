@@ -17,8 +17,9 @@ export default function Home() {
     return (
         <SafeAreaView>
             <View>
-                <Text>Welcome {user.fist_name} {user.last_name}</Text>
+                <Text>Welcome {user.first_name} {user.last_name}</Text>
                 <Text>Your username is: {user.username}</Text>
+                <Text>Your Id is: {user.id}</Text>
             </View>
             <View>
                 <Button

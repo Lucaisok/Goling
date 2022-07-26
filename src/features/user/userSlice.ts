@@ -3,7 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
     id: "",
     username: "",
-    fist_name: "",
+    first_name: "",
     last_name: "",
     token: "",
     refresh_token: "",
@@ -18,7 +18,7 @@ const userSlice = createSlice({
             const { id, username, first_name, last_name, token, refresh_token } = action.payload;
             state.id = id;
             state.username = username;
-            state.fist_name = first_name;
+            state.first_name = first_name;
             state.last_name = last_name;
             state.token = token;
             state.refresh_token = refresh_token;
@@ -27,7 +27,7 @@ const userSlice = createSlice({
         userLoggedOut(state) {
             state.id = "";
             state.username = "";
-            state.fist_name = "";
+            state.first_name = "";
             state.last_name = "";
             state.token = "";
             state.refresh_token = "";

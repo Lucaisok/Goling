@@ -1,7 +1,7 @@
 interface User {
     id: number;
     username: string;
-    fist_name: string;
+    first_name: string;
     last_name: string;
     token: string;
     refreshToken: string;
@@ -10,7 +10,17 @@ interface User {
 
 interface SignupResponse {
     existing_username?: object;
-    id?: string;
+    id?: number;
     token?: string;
     refresh_token?: string;
+}
+
+interface LoginResponse {
+    id: number;
+    first_name: string;
+    last_name: string;
+    token: string;
+    refresh_token: string;
+    wrong_username: any;
+    wrong_password: any;
 }

@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Keyboard, KeyboardAvoidingView } from "react-native";
+import { View, StyleSheet, Keyboard, KeyboardAvoidingView, Platform } from "react-native";
 import { Text, TextInput, Button } from "@react-native-material/core";
 import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
+import { useDispatch } from 'react-redux';
+import { userLoggedIn } from '../features/user/userSlice';
+import Spinner from '../components/Spinner';
 
 export default function Login({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '' });
     const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
+    const dispatch = useDispatch();
 
     const updateUsername = (username: string) => {
         setError("");
@@ -18,16 +23,50 @@ export default function Login({ navigation }: { navigation: any; }) {
         setUserInput({ ...userInput, password });
     };
 
-    const login = () => {
+    const login = async () => {
         Keyboard.dismiss();
         if (userInput.username !== "" && userInput.password !== "") {
-            const username = userInput.username;
-            const password = userInput.password;
+            setLoading(true);
+            const username = userInput.username.trim();
+            const password = userInput.password.trim();
 
             try {
 
+                const serverCall = () => {
+                    return fetch(address + "/login", {
+                        method: 'POST',
+                        headers: {
+                            Accept: 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username, password
+                        })
+                    });
+                };
+
+                const data = await fetchWithInterval(serverCall) as LoginResponse;
+
+                if (data.id) {
+                    setUserInput({ username: '', password: '' });
+                    dispatch(userLoggedIn({ id: data.id, username, first_name: data.first_name, last_name: data.last_name, token: data.token, refresh_token: data.refresh_token }));
+
+                } else if (data.wrong_username) {
+                    setError("This username does not exist, please try again");
+
+                } else if (data.wrong_password) {
+                    setError("Wrong password, please try again");
+
+                } else {
+                    setError("Server connection error, please try again");
+                }
+
             } catch (err) {
+                setError("Server connection error, please try again");
                 console.log("error in login()", err);
+
+            } finally {
+                setLoading(false);
             }
 
         } else {
@@ -37,7 +76,10 @@ export default function Login({ navigation }: { navigation: any; }) {
     };
 
     return (
-        <KeyboardAvoidingView style={styles.container}>
+        <KeyboardAvoidingView style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : "height"}>
+            {loading &&
+                <Spinner />}
             <View style={styles.titleContainer}>
                 <Text variant="h3">Goling</Text>
             </View>
