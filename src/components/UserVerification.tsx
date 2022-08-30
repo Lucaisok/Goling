@@ -8,6 +8,7 @@ import AuthenticationNavigator from '../navigation/AuthenticationNavigator';
 import AppNavigator from '../navigation/AppNavigator';
 import { useDispatch } from 'react-redux';
 import { userLoggedIn } from '../features/user/userSlice';
+import getToken from '../utils/getToken';
 
 export default function UserVerification() {
     const dispatch = useDispatch();
@@ -28,29 +29,39 @@ export default function UserVerification() {
 
                 if (credentials.username !== "" && credentials.password !== "") {
 
-                    const serverCall = () => {
-                        return fetch(address + "/login", {
-                            method: 'POST',
-                            headers: {
-                                Accept: 'application/json',
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                username: credentials.username, password: credentials.password
-                            })
-                        });
-                    };
+                    const token = await getToken();
 
-                    const data = await fetchWithInterval(serverCall) as LoginResponse;
+                    if (token) {
+                        // here we check if the token or refreshToken saved on the device is still valid, if not we log the user out
 
-                    if (data.id) {
-                        await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
-                        dispatch(userLoggedIn({ id: data.id, username: credentials.username, first_name: data.first_name, last_name: data.last_name }));
-                        setUserVerification("succeeded");
+                        const serverCall = () => {
+                            return fetch(address + "/login", {
+                                method: 'POST',
+                                headers: {
+                                    Accept: 'application/json',
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    username: credentials.username, password: credentials.password
+                                })
+                            });
+                        };
+
+                        const data = await fetchWithInterval(serverCall) as LoginResponse;
+
+                        if (data.id) {
+                            await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
+                            dispatch(userLoggedIn({ id: data.id, username: credentials.username, first_name: data.first_name, last_name: data.last_name }));
+                            setUserVerification("succeeded");
+
+                        } else {
+                            setUserVerification("failed");
+                        }
 
                     } else {
                         setUserVerification("failed");
                     }
+
                 } else {
                     setUserVerification("failed");
                 }

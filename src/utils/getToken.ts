@@ -17,6 +17,8 @@ export default async function getToken() {
             // If our current token has expired we use our refresh token to create new tokens
             let newToken = await createNewToken(refreshToken);
             if (newToken) return newToken;
+
+            //would be great to log the user out here, but can not dispatch action from a non component file!
         }
 
     } catch (err) {
