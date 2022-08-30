@@ -25,6 +25,11 @@ interface LoginResponse {
     wrong_password: any;
 }
 
+interface TokensResponse {
+    token: string;
+    refreshToken: string;
+}
+
 interface Credentials {
     username: string;
     password: string;

@@ -24,7 +24,7 @@ export default function UserVerification() {
 
             try {
 
-                const credentials = await Keychain.getGenericPassword() as Credentials;
+                const credentials = await Keychain.getGenericPassword({ service: "credentials" }) as Credentials;
 
                 if (credentials.username !== "" && credentials.password !== "") {
 
@@ -44,7 +44,8 @@ export default function UserVerification() {
                     const data = await fetchWithInterval(serverCall) as LoginResponse;
 
                     if (data.id) {
-                        dispatch(userLoggedIn({ id: data.id, username: credentials.username, first_name: data.first_name, last_name: data.last_name, token: data.token, refresh_token: data.refresh_token }));
+                        await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
+                        dispatch(userLoggedIn({ id: data.id, username: credentials.username, first_name: data.first_name, last_name: data.last_name }));
                         setUserVerification("succeeded");
 
                     } else {
@@ -56,6 +57,7 @@ export default function UserVerification() {
 
             } catch (err) {
                 console.log("err in UserVerification", err);
+                setUserVerification('failed');
             }
 
         })();

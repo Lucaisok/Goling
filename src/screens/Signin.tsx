@@ -63,9 +63,10 @@ export default function Signin({ navigation }: { navigation: any; }) {
                     setError("Username already exist, please try again");
 
                 } else if (data.token && data.refresh_token && data.id) {
-                    await Keychain.setGenericPassword(username, password);
+                    await Keychain.setGenericPassword(username, password, { service: "credentials" });
+                    await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
                     setUserInput({ username: '', password: '', first_name: '', last_name: '' });
-                    dispatch(userLoggedIn({ id: data.id, username, first_name, last_name, token: data.token, refresh_token: data.refresh_token }));
+                    dispatch(userLoggedIn({ id: data.id, username, first_name, last_name }));
 
                 } else {
                     setError("Server connection error, please try again");
