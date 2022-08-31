@@ -10,6 +10,7 @@ export default function Logout() {
 
     const logout = async () => {
         await Keychain.setGenericPassword("", "", { service: "credentials" });
+        await Keychain.setGenericPassword("", "", { service: "tokens" });
         dispatch(userLoggedOut());
     };
 

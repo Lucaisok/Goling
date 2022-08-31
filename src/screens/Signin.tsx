@@ -9,7 +9,7 @@ import { userLoggedIn } from '../features/user/userSlice';
 import * as Keychain from 'react-native-keychain';
 
 export default function Signin({ navigation }: { navigation: any; }) {
-    const [userInput, setUserInput] = useState({ username: '', password: '', first_name: '', last_name: '' });
+    const [userInput, setUserInput] = useState({ username: '', password: '', first_name: '', last_name: '', email: '' });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const dispatch = useDispatch();
@@ -34,14 +34,20 @@ export default function Signin({ navigation }: { navigation: any; }) {
         setUserInput({ ...userInput, password });
     };
 
+    const updateEmail = (email: string) => {
+        setError("");
+        setUserInput({ ...userInput, email });
+    };
+
     const signup = async () => {
         Keyboard.dismiss();
-        if (userInput.username !== "" && userInput.password !== "" && userInput.first_name !== "" && userInput.last_name !== "") {
+        if (userInput.username !== "" && userInput.password !== "" && userInput.first_name !== "" && userInput.last_name !== "" && userInput.email) {
             setLoading(true);
             const username = userInput.username.trim();
             const password = userInput.password.trim();
             const first_name = userInput.first_name.trim();
             const last_name = userInput.last_name.trim();
+            const email = userInput.email.trim();
 
             try {
                 const serverCall = () => {
@@ -52,7 +58,7 @@ export default function Signin({ navigation }: { navigation: any; }) {
                             'Content-Type': 'application/json'
                         },
                         body: JSON.stringify({
-                            username, password, first_name, last_name
+                            username, password, first_name, last_name, email
                         })
                     });
                 };
@@ -65,7 +71,7 @@ export default function Signin({ navigation }: { navigation: any; }) {
                 } else if (data.token && data.refresh_token && data.id) {
                     await Keychain.setGenericPassword(username, password, { service: "credentials" });
                     await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
-                    setUserInput({ username: '', password: '', first_name: '', last_name: '' });
+                    setUserInput({ username: '', password: '', first_name: '', last_name: '', email: '' });
                     dispatch(userLoggedIn({ id: data.id, username, first_name, last_name }));
 
                 } else {
@@ -117,6 +123,12 @@ export default function Signin({ navigation }: { navigation: any; }) {
                     onChangeText={updateLastName}
                 />
                 <TextInput
+                    label="Email"
+                    variant="outlined"
+                    value={userInput.email}
+                    onChangeText={updateEmail}
+                />
+                <TextInput
                     label="Password"
                     variant="outlined"
                     value={userInput.password}
@@ -157,7 +169,7 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         width: "70%",
-        flex: 2,
+        flex: 3,
     },
     textContainer: {
         marginTop: 10,

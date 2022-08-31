@@ -106,13 +106,19 @@ export default function Login({ navigation }: { navigation: any; }) {
                     title="Login"
                     onPress={login}
                 />
-                <View style={styles.textContainer}>
-                    <Text variant="subtitle1">Not a member yet ?</Text>
+                <View style={styles.buttonsRow}>
                     <Button variant="text"
-                        title="JOIN"
+                        title="Signup"
                         compact
                         onPress={() =>
                             navigation.navigate('Signin')
+                        } />
+                    <Text>or</Text>
+                    <Button variant="text"
+                        title="Reset Password"
+                        compact
+                        onPress={() =>
+                            navigation.navigate('Reset_Password')
                         } />
                 </View>
             </View>
@@ -139,15 +145,16 @@ const styles = StyleSheet.create({
         width: "70%",
         flex: 2,
     },
-    textContainer: {
-        marginTop: 10,
-        width: "70%",
-        display: "flex",
-        flexDirection: "row",
-        alignItems: "baseline",
-    },
     error: {
         color: "red",
         marginBottom: 10
+    },
+    buttonsRow: {
+        marginTop: 10,
+        width: "100%",
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "baseline",
+        justifyContent: "space-between",
     }
 });

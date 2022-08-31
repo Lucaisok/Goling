@@ -35,4 +35,9 @@ interface Credentials {
     password: string;
 }
 
+interface ServerResponse {
+    success: boolean;
+    serverError: boolean;
+}
+
 type UserVerification = "succeeded" | "failed" | null;
