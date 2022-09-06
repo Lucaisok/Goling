@@ -7,6 +7,7 @@ import fetchWithInterval from '../utils/fetchWithInterval';
 import { useDispatch } from 'react-redux';
 import { userLoggedIn } from '../features/user/userSlice';
 import * as Keychain from 'react-native-keychain';
+import validEmail from '../utils/validEmail';
 
 export default function Signin({ navigation }: { navigation: any; }) {
     const [userInput, setUserInput] = useState({ username: '', password: '', first_name: '', last_name: '', email: '' });
@@ -42,48 +43,55 @@ export default function Signin({ navigation }: { navigation: any; }) {
     const signup = async () => {
         Keyboard.dismiss();
         if (userInput.username !== "" && userInput.password !== "" && userInput.first_name !== "" && userInput.last_name !== "" && userInput.email) {
-            setLoading(true);
             const username = userInput.username.trim();
             const password = userInput.password.trim();
             const first_name = userInput.first_name.trim();
             const last_name = userInput.last_name.trim();
             const email = userInput.email.trim();
 
-            try {
-                const serverCall = () => {
-                    return fetch(address + "/signin", {
-                        method: 'POST',
-                        headers: {
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            username, password, first_name, last_name, email
-                        })
-                    });
-                };
+            if (!validEmail(email)) {
+                setError('Please insert a valid email address');
 
-                const data = await fetchWithInterval(serverCall) as SignupResponse;
+            } else {
+                setLoading(true);
 
-                if (data.existing_username) {
-                    setError("Username already exist, please try again");
+                try {
+                    const serverCall = () => {
+                        return fetch(address + "/signin", {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                username, password, first_name, last_name, email
+                            })
+                        });
+                    };
 
-                } else if (data.token && data.refresh_token && data.id) {
-                    await Keychain.setGenericPassword(username, password, { service: "credentials" });
-                    await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
-                    setUserInput({ username: '', password: '', first_name: '', last_name: '', email: '' });
-                    dispatch(userLoggedIn({ id: data.id, username, first_name, last_name }));
+                    const data = await fetchWithInterval(serverCall) as SignupResponse;
 
-                } else {
+                    if (data.existing_username) {
+                        setError("Username already exist, please try again");
+
+                    } else if (data.token && data.refresh_token && data.id) {
+                        await Keychain.setGenericPassword(username, password, { service: "credentials" });
+                        await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
+                        setUserInput({ username: '', password: '', first_name: '', last_name: '', email: '' });
+                        dispatch(userLoggedIn({ id: data.id, username, first_name, last_name }));
+
+                    } else {
+                        setError("Server connection error, please try again");
+                    }
+
+                } catch (err) {
+                    console.log("error in signup()", err);
                     setError("Server connection error, please try again");
+
+                } finally {
+                    setLoading(false);
                 }
 
-            } catch (err) {
-                console.log("error in signup()", err);
-                setError("Server connection error, please try again");
-
-            } finally {
-                setLoading(false);
             }
 
         } else {

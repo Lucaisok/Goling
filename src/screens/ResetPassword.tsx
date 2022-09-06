@@ -4,6 +4,7 @@ import { TextInput, Button, Text } from "@react-native-material/core";
 import Spinner from '../components/Spinner';
 import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
+import validEmail from '../utils/validEmail';
 import { useDispatch } from 'react-redux';
 import { userLoggedIn } from '../features/user/userSlice';
 import * as Keychain from 'react-native-keychain';
@@ -22,43 +23,50 @@ export default function ResetPassword({ navigation }: { navigation: any; }) {
     const sendEmail = async () => {
         Keyboard.dismiss();
         if (email !== '') {
-            setLoading(true);
             email.trim();
 
-            try {
-                const serverCall = () => {
-                    return fetch(address + "/reset-password-email", {
-                        method: 'POST',
-                        headers: {
-                            Accept: 'application/json',
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            email
-                        })
-                    });
-                };
+            if (!validEmail(email)) {
+                setError("Please insert a valid email address");
 
-                const data = await fetchWithInterval(serverCall) as ServerResponse;
+            } else {
+                setLoading(true);
 
-                if (data.success) {
-                    setEmail("");
-                    setSuccess('An email has been sent to your email address, please click on the link to set a new password.');
+                try {
+                    const serverCall = () => {
+                        return fetch(address + "/reset-password-email", {
+                            method: 'POST',
+                            headers: {
+                                Accept: 'application/json',
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                email
+                            })
+                        });
+                    };
 
-                } else if (data.serverError) {
-                    setError('Server Error, please try again');
+                    const data = await fetchWithInterval(serverCall) as ServerResponse;
 
-                } else {
-                    setEmail("");
-                    setError('There isn`t any registerd account linked to this email address.');
+                    if (data.success) {
+                        setEmail("");
+                        setSuccess('An email has been sent to your email address, please click on the link to set a new password.');
 
+                    } else if (data.serverError) {
+                        setError('Server Error, please try again');
+
+                    } else {
+                        setEmail("");
+                        setError('There isn`t any registerd account linked to this email address.');
+
+                    }
+
+                } catch (err) {
+                    console.log("error in reset_pwd", err);
+
+                } finally {
+                    setLoading(false);
                 }
 
-            } catch (err) {
-                console.log("error in reset_pwd", err);
-
-            } finally {
-                setLoading(false);
             }
 
         } else {
