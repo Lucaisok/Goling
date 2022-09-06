@@ -5,15 +5,24 @@ import Spinner from '../components/Spinner';
 import address from '../config/addressConfig';
 import fetchWithInterval from '../utils/fetchWithInterval';
 import validEmail from '../utils/validEmail';
-import { useDispatch } from 'react-redux';
-import { userLoggedIn } from '../features/user/userSlice';
-import * as Keychain from 'react-native-keychain';
+import {
+    CodeField,
+    Cursor,
+    useBlurOnFulfill,
+    useClearByFocusCell,
+} from 'react-native-confirmation-code-field';
 
 export default function ResetPassword({ navigation }: { navigation: any; }) {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const [email, setEmail] = useState("");
-    const [success, setSuccess] = useState("");
+    const [codeSent, setCodeSent] = useState(true);
+    const [code, setCode] = useState('');
+    const ref = useBlurOnFulfill({ value: code, cellCount: 5 });
+    const [props, getCellOnLayoutHandler] = useClearByFocusCell({
+        value: code,
+        setValue: setCode,
+    });
 
     const updateEmail = (email: string) => {
         setError("");
@@ -49,7 +58,7 @@ export default function ResetPassword({ navigation }: { navigation: any; }) {
 
                     if (data.success) {
                         setEmail("");
-                        setSuccess('An email has been sent to your email address, please click on the link to set a new password.');
+                        setCodeSent(true);
 
                     } else if (data.serverError) {
                         setError('Server Error, please try again');
@@ -74,6 +83,10 @@ export default function ResetPassword({ navigation }: { navigation: any; }) {
         }
     };
 
+    const submitCode = () => {
+        console.log("code", code);
+    };
+
     return (
         <KeyboardAvoidingView style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -85,22 +98,50 @@ export default function ResetPassword({ navigation }: { navigation: any; }) {
             <View style={styles.formContainer}>
                 {error &&
                     <Text variant="subtitle1" style={styles.error}>{error}</Text>}
-                {success &&
-                    <Text variant="subtitle1" style={styles.success}>{success}</Text>}
-                {success &&
+                {codeSent &&
+                    <View style={styles.root}>
+                        <Text style={styles.title}>Insert Code</Text>
+                        <CodeField
+                            ref={ref}
+                            {...props}
+                            // Use `caretHidden={false}` when users can't paste a text value, because context menu doesn't appear
+                            value={code}
+                            onChangeText={setCode}
+                            cellCount={5}
+                            rootStyle={styles.codeFieldRoot}
+                            keyboardType="number-pad"
+                            textContentType="oneTimeCode"
+                            renderCell={({ index, symbol, isFocused }) => (
+                                <Text
+                                    key={index}
+                                    style={[styles.cell, isFocused && styles.focusCell]}
+                                    onLayout={getCellOnLayoutHandler(index)}>
+                                    {symbol || (isFocused ? <Cursor /> : null)}
+                                </Text>
+                            )}
+                        />
+                        <Button
+                            title="Submit"
+                            onPress={submitCode}
+                            style={styles.button}
+                        />
+                    </View>
+                }
+                {codeSent &&
                     <View style={styles.textContainer}>
                         <Text variant="subtitle1" style={{ marginRight: 15 }}>No email ?</Text>
                         <Button variant="text"
                             title="Try again"
                             onPress={() =>
-                                setSuccess("")
+                                setCodeSent(false)
                             } />
                     </View>}
-                {!success &&
+                {!codeSent &&
                     <View>
                         <TextInput
                             label="Email"
                             variant="outlined"
+                            keyboardType='email-address'
                             value={email}
                             onChangeText={updateEmail}
                         />
@@ -109,7 +150,7 @@ export default function ResetPassword({ navigation }: { navigation: any; }) {
                             onPress={sendEmail}
                         />
                     </View>}
-                {!success && <View style={styles.buttonsRow}>
+                {!codeSent && <View style={styles.buttonsRow}>
                     <Button variant="text"
                         title="Login"
                         compact
@@ -157,7 +198,6 @@ const styles = StyleSheet.create({
         color: "green"
     },
     textContainer: {
-        marginTop: 10,
         width: "70%",
         display: "flex",
         flexDirection: "row",
@@ -170,5 +210,23 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "baseline",
         justifyContent: "space-between"
+    },
+    root: {},
+    title: { textAlign: 'center', fontSize: 25 },
+    codeFieldRoot: { marginTop: 20 },
+    cell: {
+        width: 40,
+        height: 40,
+        lineHeight: 38,
+        fontSize: 24,
+        borderWidth: 1,
+        borderColor: '#00000030',
+        textAlign: 'center',
+    },
+    focusCell: {
+        borderColor: '#000',
+    },
+    button: {
+        marginTop: 10
     }
 });
