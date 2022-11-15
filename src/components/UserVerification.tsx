@@ -50,8 +50,9 @@ export default function UserVerification() {
                         const data = await fetchWithInterval(serverCall) as LoginResponse;
 
                         if (data.id) {
+                            const id = JSON.stringify(data.id);
                             await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
-                            dispatch(userLoggedIn({ id: data.id, username: credentials.username, first_name: data.first_name, last_name: data.last_name }));
+                            dispatch(userLoggedIn({ id, username: credentials.username, first_name: data.first_name, last_name: data.last_name, loggedIn: true }));
                             setUserVerification("succeeded");
 
                         } else {

@@ -49,11 +49,12 @@ export default function Login({ navigation }: { navigation: any; }) {
                 const data = await fetchWithInterval(serverCall) as LoginResponse;
 
                 if (data.id) {
+                    const id = JSON.stringify(data.id);
                     await Keychain.setGenericPassword(username, password, { service: "credentials" });
                     await Keychain.setGenericPassword(data.token, data.refresh_token, { service: "tokens" });
 
                     setUserInput({ username: '', password: '' });
-                    dispatch(userLoggedIn({ id: data.id, username, first_name: data.first_name, last_name: data.last_name }));
+                    dispatch(userLoggedIn({ id, username, first_name: data.first_name, last_name: data.last_name, loggedIn: true }));
 
                 } else if (data.wrong_username) {
                     setError("This username does not exist, please try again");
