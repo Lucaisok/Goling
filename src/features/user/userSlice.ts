@@ -1,6 +1,14 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-const initialState = {
+interface UserState {
+    id: string,
+    username: string;
+    first_name: string;
+    last_name: string,
+    loggedIn: boolean;
+}
+
+const initialState: UserState = {
     id: "",
     username: "",
     first_name: "",
@@ -12,13 +20,13 @@ const userSlice = createSlice({
     name: "user",
     initialState,
     reducers: {
-        userLoggedIn(state, action) {
-            const { id, username, first_name, last_name } = action.payload;
+        userLoggedIn(state, action: PayloadAction<UserState>) {
+            const { id, username, first_name, last_name, loggedIn } = action.payload;
             state.id = id;
             state.username = username;
             state.first_name = first_name;
             state.last_name = last_name;
-            state.loggedIn = true;
+            state.loggedIn = loggedIn;
         },
         userLoggedOut(state) {
             state.id = "";
